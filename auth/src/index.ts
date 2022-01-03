@@ -31,6 +31,10 @@ app.all('*', async ()=> {
 app.use(errorHandler)
 
 const start = async () => {
+  if (!process.env.JWT_KEY){
+    throw new Error('process.env.JWT_KEY not found')
+  }
+
   try {
     await mongoose.connect('mongodb://auth-db-srv:27017/auth')
     console.log('DB::OK')
