@@ -1,19 +1,26 @@
 import { useState } from "react";
-import axios from "axios";
+import Router from "next/router";
+
+import useRequest from "../../hooks/use-request";
 
 export default () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState([]);
+  const { doRequest, errs } = useRequest({
+    url: "/api/users/signup",
+    method: "post",
+    body: {
+      email,
+      password,
+    },
+    onSuccess: (data) => {
+      Router.push("/")
+    }
+  });
 
   const onSubmit = async (e) => {
     e.preventDefault();
-
-    try {
-      const res = await axios.post("/api/users/signup", { email, password });
-    } catch (err) {
-      setErrors(err.response.data.errors);
-    }
+    doRequest();
   };
 
   return (
@@ -37,16 +44,7 @@ export default () => {
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      {errors.length > 0 && (
-        <div className="alert alert-danger">
-          <h4>Ooopss...</h4>
-          <ul className="my-o">
-            {errors.map((e) => (
-              <li key={e.message}>{e.message}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {errs}
       <button className="btn btn-primary">Sign Up</button>
     </form>
   );
